@@ -52,7 +52,7 @@ var prefillStore = new SessionStorage('webform_prefill')
 var FormValList = function($e) {
   this.$e = $e;
   this.name = $e.attr('name');
-  this.cache_key = this.pfxMapFn()(this.name);
+  this.cache_key = this.pfxMap(this.name);
 };
 
 FormValList.prototype.getVal = function() {
@@ -71,14 +71,14 @@ FormValList.prototype.getAllByName = function() {
     .filter('input:checkbox, input:radio, select[multiple]');
 };
 
-FormValList.prototype.pfxMapFn = function() {
-  return function(x) { return 'l:' + x; };
+FormValList.prototype.pfxMap = function(x) {
+  return 'l:' + x;
 }
 
 var FormValSingle = function($e) {
   this.$e = $e;
   this.name = $e.attr('name');
-  this.cache_key = this.pfxMapFn()(this.name);
+  this.cache_key = this.pfxMap(this.name);
 };
 
 FormValSingle.prototype.getVal = function() {
@@ -91,8 +91,8 @@ FormValSingle.prototype.getAllByName = function() {
     .not('input:checkbox, input:radio, select[multiple]');
 };
 
-FormValSingle.prototype.pfxMapFn = function() {
-  return function(x) { return 's:' + x; };
+FormValSingle.prototype.pfxMap = function(x) {
+  return 's:' + x;
 }
 
 Drupal.behaviors.webform_prefill = {};
@@ -113,8 +113,7 @@ Drupal.behaviors.webform_prefill._keys = function(name) {
 };
 
 Drupal.behaviors.webform_prefill.keys = function(val) {
-  var keys = this._keys(val.name);
-  return $.map(keys, val.pfxMapFn());
+  return $.map(this._keys(val.name), val.pfxMap);
 };
 
 Drupal.behaviors.webform_prefill.attach = function(context, settings) {
@@ -129,10 +128,10 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
   if (!prefillStore.browserSupport()) { return; }
 
   var self = this;
-  var $forms = $('.webform-client-form', context);
+  var $inputs = $('.webform-client-form', context).find('input, select, textarea');
 
   var done = {};
-  $forms.find('input, select, textarea').each(function() {
+  $inputs.each(function() {
     var e = self.elementFactory($(this));
     if (!(e.cache_key in done)) {
       done[e.cache_key] = true;
@@ -145,7 +144,7 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
     }
   });
 
-  $forms.find('input, select, textarea').on('change', function() {
+  $inputs.on('change', function() {
     var e = self.elementFactory($(this));
     if (!e.name) { return; }
     prefillStore.setItem(e.cache_key, e.getVal());
