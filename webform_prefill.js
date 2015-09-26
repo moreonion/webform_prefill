@@ -117,7 +117,10 @@ Drupal.behaviors.webform_prefill.keys = function(val) {
 };
 
 Drupal.behaviors.webform_prefill.attach = function(context, settings) {
+  if (!prefillStore.browserSupport()) { return; }
+
   if (typeof this.settings === 'undefined') {
+    this.readUrlVars();
     if ('webform_prefill' in Drupal.settings) {
       this.settings = Drupal.settings.webform_prefill;
     }
@@ -125,7 +128,6 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
       this.settings = {map: {}};
     }
   }
-  if (!prefillStore.browserSupport()) { return; }
 
   var self = this;
   var $inputs = $('.webform-client-form', context).find('input, select, textarea');
@@ -148,6 +150,35 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
     var e = self.elementFactory($(this));
     if (!e.name) { return; }
     prefillStore.setItem(e.cache_key, e.getVal());
+  });
+};
+
+// Collect values from the current location.
+Drupal.behaviors.webform_prefill.readUrlVars = function() {
+  var vars = {}, key, value, p;
+  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+  for (var i = 0; i < hashes.length; i++) {
+    p = hashes[i].indexOf('=');
+    key = hashes[i].substring(0, p);
+    value = hashes[i].substring(p+1);
+    // Only act on s: or l: prefixes.
+    if (key[1] == ':' && (key[0] == 's' || key[0] == 'l')) {
+      // Collect "l:" values in a list.
+      if (key[0] == 'l') {
+        if (!(key in vars)) {
+          vars[key] = [];
+        }
+        vars[key].push(value);
+      }
+      // "s:" values are set directly.
+      else {
+        prefillStore.setItem(key, value);
+      }
+    }
+  }
+  // Finally set all list values.
+  $.each(vars, function(key, value) {
+    prefillStore.setItem(key, value);
   });
 };
 
