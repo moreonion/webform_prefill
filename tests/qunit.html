@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>QUnit Example</title>
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-1.19.0.css">
+  <script>
+Drupal = {behaviors: {}};
+  </script>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://code.jquery.com/qunit/qunit-1.19.0.js"></script>
+  <script src="../webform_prefill.js"></script>
+
+<script>
+
+function getVal($e) {
+  var e = Drupal.behaviors.webform_prefill.elementFactory($e);
+  return e.getVal();
+}
+
+function setVal($e, val) {
+  var e = Drupal.behaviors.webform_prefill.elementFactory($e);
+  return e.getAllByName().val(val);
+}
+
+QUnit.test( "getVal: textfield", function( assert ) {
+  var $fixture = $('#qunit-fixture')
+  $fixture.append('<form><input type="text" name="test"></form>');
+  var $t = $fixture.find('[name="test"]');
+  assert.equal(getVal($t), '');
+  $fixture.find('[name="test"]').val('test');
+  assert.equal(getVal($t), 'test');
+  assert.equal($fixture.find('form').serialize(), 'test=test');
+});
+
+QUnit.test( "getVal: checkbox", function( assert ) {
+  var $fixture = $('#qunit-fixture')
+  $fixture.append('<form><input type="checkbox" name="test" value="test"><input type="checkbox" name="test" value="nope"></form>');
+  var $s = $fixture.find('[name="test"]');
+  assert.deepEqual(getVal($s), []);
+  $s.val(['test']);
+  assert.ok($fixture.find('[value="test"]').is(':checked'));
+  assert.notOk($fixture.find('[value="nope"]').is(':checked'));
+  assert.equal($fixture.find('form').serialize(), 'test=test');
+  assert.deepEqual(getVal($s), ['test']);
+});
+
+QUnit.test( "getVal: radios", function( assert ) {
+  var $fixture = $('#qunit-fixture')
+  $fixture.append('<form><input type="radio" name="test" value="test"><input type="radio" name="test" value="nope"></form>');
+  var $r = $fixture.find('[name="test"]');
+  assert.deepEqual(getVal($r), []);
+  $r.val(['test']);
+  assert.ok($r.filter('[value="test"]').is(':checked'));
+  assert.notOk($r.filter('[value="nope"]').is(':checked'));
+  assert.deepEqual(getVal($r.filter('[value="nope"]')), ['test']);
+  assert.equal($fixture.find('form').serialize(), 'test=test');
+  assert.deepEqual(getVal($r), ['test']);
+});
+
+QUnit.test( "getVal: single select", function( assert ) {
+  var $fixture = $('#qunit-fixture')
+  $fixture.append('<form><select name="test"><option value="test">test</option><option value="nope">nope</option></select></form>');
+  var $s = $fixture.find('[name="test"]');
+  assert.equal(getVal($s), 'test');
+  $fixture.find('[name="test"]').val('test');
+  assert.ok($fixture.find('[value="test"]').is(':checked'));
+  assert.notOk($fixture.find('[value="nope"]').is(':checked'));
+  assert.equal($fixture.find('form').serialize(), 'test=test');
+  assert.deepEqual(getVal($s), 'test');
+});
+
+QUnit.test( "getVal: multi select", function( assert ) {
+  var $fixture = $('#qunit-fixture')
+  $fixture.append('<form><select name="test" multiple><option value="test">test</option><option value="nope">nope</option></select></form>');
+  var $s = $fixture.find('[name="test"]');
+  assert.deepEqual(getVal($s), []);
+  $s.val(['test', 'nope']);
+  assert.ok($fixture.find('[value="test"]').is(':checked'));
+  assert.ok($fixture.find('[value="nope"]').is(':checked'));
+  assert.equal($fixture.find('form').serialize(), 'test=test&test=nope');
+  assert.deepEqual(getVal($s), ['test', 'nope']);
+});
+
+QUnit.test( "setVal: input[type=text] vs. multi select", function( assert ) {
+  var $fixture = $('#qunit-fixture')
+  $fixture.append('<form><input type="text" name="test"><select name="test" multiple><option value="test">test</option><option value="nope">nope</option></select></form>');
+  var $t = $fixture.find('input[name="test"]');
+  var $s = $fixture.find('select[name="test"]');
+  assert.deepEqual(getVal($s), []);
+  assert.deepEqual(getVal($t), '');
+  setVal($s, ['test']);
+  assert.deepEqual(getVal($s), ['test']);
+  assert.deepEqual(getVal($t), '');
+  setVal($t, 'test2');
+  assert.deepEqual(getVal($s), ['test']);
+  assert.deepEqual(getVal($t), 'test2');
+});
+
+</script>
+</body>
+</html>

@@ -36,16 +36,88 @@ SessionStorage.prototype.getItem = function(key) {
   }
 };
 
+SessionStorage.prototype.getFirst = function(keys) {
+  // Get value from all possible keys.
+  var value = null;
+  for (var i=0; i<keys.length; i++) {
+    var key = keys[i];
+    value = prefillStore.getItem(key);
+    if (value) {
+      return value;
+    }
+  }
+  return null;
+};
+
 var prefillStore = new SessionStorage('webform_prefill')
 
 
+var FormValList = function($e) {
+  this.$e = $e;
+  this.name = $e.attr('name');
+  this.cache_key = this.pfxMapFn()(this.name);
+};
+
+FormValList.prototype.getVal = function() {
+  var $e = this.$e;
+  var type = $e.attr('type');
+  if (type == 'checkbox' || type == 'radio') {
+    $e = $e.closest('form').find('input:'+type+'[name="'+$e.attr('name')+'"]:checked');
+  }
+  var val = $e.val() || [];
+  return (val.constructor === Array) ? val : [val];
+};
+
+FormValList.prototype.getAllByName = function() {
+  return this.$e.closest('form')
+    .find('[name="'+this.$e.attr('name')+'"]')
+    .filter('input:checkbox, input:radio, select[multiple]');
+};
+
+FormValList.prototype.pfxMapFn = function() {
+  return function(x) { return 'l:' + x; };
+}
+
+var FormValSingle = function($e) {
+  this.$e = $e;
+  this.name = $e.attr('name');
+  this.cache_key = this.pfxMapFn()(this.name);
+};
+
+FormValSingle.prototype.getVal = function() {
+  return this.$e.val();
+};
+
+FormValSingle.prototype.getAllByName = function() {
+  return this.$e.closest('form')
+    .find('[name="'+this.$e.attr('name')+'"]')
+    .not('input:checkbox, input:radio, select[multiple]');
+};
+
+FormValSingle.prototype.pfxMapFn = function() {
+  return function(x) { return 's:' + x; };
+}
+
 Drupal.behaviors.webform_prefill = {};
 
-Drupal.behaviors.webform_prefill.keys = function(name) {
+Drupal.behaviors.webform_prefill.elementFactory = function ($e) {
+  var type = $e.attr('type');
+  if (type == 'checkbox' || type == 'radio' || $e.is('select[multiple]')) {
+    return new FormValList($e);
+  }
+  return new FormValSingle($e);
+};
+
+Drupal.behaviors.webform_prefill._keys = function(name) {
   if (name in this.settings.map) {
     return this.settings.map[name];
   }
   return [name];
+};
+
+Drupal.behaviors.webform_prefill.keys = function(val) {
+  var keys = this._keys(val.name);
+  return $.map(keys, val.pfxMapFn());
 };
 
 Drupal.behaviors.webform_prefill.attach = function(context, settings) {
@@ -62,59 +134,25 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
   var self = this;
   var $forms = $('.webform-client-form', context);
 
-  $forms.find('input[type=checkbox]:checked').each(function(e) {
-    var v = $(this).val();
-    var name = $e.attr('name');
-    if(name) { return; }
-    prefillStore.setItem(name, v);
-  });
-
   var done = {};
-  $forms.find('input, select, textarea').each(function(e) {
-    var $e = $(this);
-    var name = $e.attr('name');
-    if (!name) { return; }
-
-    if (!(name in done)) {
-      done[name] = true;
+  $forms.find('input, select, textarea').each(function() {
+    var e = self.elementFactory($(this));
+    var done = {};
+    if (!(e.cache_key in done)) {
+      done[e.cache_key] = true;
 
       // Get value from all possible keys.
-      var keys = self.keys(name);
-      var value = null;
-      for (var i=0; i<keys.length; i++) {
-        var key = keys[i];
-        value = prefillStore.getItem(key);
-        break;
-      }
-
+      var value = prefillStore.getFirst(self.keys(e));
       if (value !== null) {
-        if (typeof value === 'object') {
-          // Convert objects to lists suitable for $.val().
-          var values = [];
-          for (key in value) {
-            if (value[key]) {
-              values.push(key);
-            }
-          }
-          value = values;
-        }
-        // Set value on all elements with the same name.
-        var $eAll = $e.closest('form').find('[name="' + $e.attr('name') + '"]');
-        $eAll.val(value);
+        e.getAllByName().val(value);
       }
     }
   });
 
-  $forms.find('input, select, textarea').on('change', function(e) {
-    var v = $(this).val();
-    var name = $(this).attr('name');
-    if (!name) { return; }
-    if ($(this).attr('type') === 'checkbox') {
-      var old = prefillStore.getItem(name) || {};
-      old[v] = $(this).is(':checked');
-      v = old;
-    }
-    prefillStore.setItem(name, v);
+  $forms.find('input, select, textarea').on('change', function() {
+    var e = self.elementFactory($(this));
+    if (!e.name) { return; }
+    prefillStore.setItem(e.cache_key, e.getVal());
   });
 };
 
