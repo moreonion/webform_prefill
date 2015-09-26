@@ -134,7 +134,6 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
   var done = {};
   $forms.find('input, select, textarea').each(function() {
     var e = self.elementFactory($(this));
-    var done = {};
     if (!(e.cache_key in done)) {
       done[e.cache_key] = true;
 
