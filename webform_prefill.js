@@ -1,9 +1,6 @@
 (function ($) {
 
 var SessionStorage = function(pfx) {
-  if (!this.browserSupport()) {
-    return false;
-  }
   this.pfx = pfx;
 };
 
@@ -129,7 +126,7 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
       this.settings = {map: {}};
     }
   }
-  if (!prefillStore) { return; }
+  if (!prefillStore.browserSupport()) { return; }
 
   var self = this;
   var $forms = $('.webform-client-form', context);
