@@ -154,31 +154,29 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
 };
 
 // Collect values from the current location.
-Drupal.behaviors.webform_prefill.readUrlVars = function() {
-  var vars = {}, key, value, p;
-  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+Drupal.behaviors.webform_prefill.readUrlVars = function(href) {
+  href = href || window.location.href;
+  var vars = {}, key, value, p, hashes;
+  hashes = href.slice(href.indexOf('?') + 1).split('&');
   for (var i = 0; i < hashes.length; i++) {
     p = hashes[i].indexOf('=');
     key = hashes[i].substring(0, p);
     value = hashes[i].substring(p+1);
-    // Only act on s: or l: prefixes.
-    if (key[1] == ':' && (key[0] == 's' || key[0] == 'l')) {
-      // Collect "l:" values in a list.
-      if (key[0] == 'l') {
-        if (!(key in vars)) {
-          vars[key] = [];
-        }
-        vars[key].push(value);
+    // Only act on p: prefixes.
+    if (key.substr(0, 2) == 'p:') {
+      key = key.substr(2);
+      // Prepare values to be set as list values.
+      if (!(key in vars)) {
+        vars[key] = [];
       }
-      // "s:" values are set directly.
-      else {
-        prefillStore.setItem(key, value);
-      }
+      vars[key].push(value);
+      // Set string values directly.
+      prefillStore.setItem('s:' + key, value);
     }
   }
   // Finally set all list values.
   $.each(vars, function(key, value) {
-    prefillStore.setItem(key, value);
+    prefillStore.setItem('l:' + key, value);
   });
 };
 
