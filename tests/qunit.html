@@ -125,9 +125,10 @@ QUnit.test( "formKey: input[type=checkbox]", function( assert ) {
   assert.equal(Drupal.behaviors.webform_prefill.formKey($e), 'test');
 });
 
-QUnit.test( "readUrlVars: p:test=testval&p:test=testval2", function ( assert ) {
+QUnit.test( "readUrlVars: p:test=testval&p:test=testval2;somethingelse", function ( assert ) {
   var store = new Store();
-  Drupal.behaviors.webform_prefill.readUrlVars('p:test=testval&p:test=testval2', store);
+  var ret = Drupal.behaviors.webform_prefill.readUrlVars('p:test=testval&p:test=testval2;somethingelse', store);
+  assert.equal(ret, 'somethingelse');
   assert.equal(store.getItem('s:test'), 'testval2');
   assert.deepEqual(store.getItem('l:test'), ['testval', 'testval2']);
 });

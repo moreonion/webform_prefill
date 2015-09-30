@@ -131,7 +131,13 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
   if (!prefillStore.browserSupport()) { return; }
 
   if (typeof this.settings === 'undefined') {
-    this.readUrlVars();
+    var hash = window.location.hash.substr(1);
+    if (hash) {
+      var new_hash = this.readUrlVars(hash);
+      if (new_hash != hash) {
+        window.location.hash = '#' + new_hash;
+      }
+    }
     if ('webform_prefill' in Drupal.settings) {
       this.settings = Drupal.settings.webform_prefill;
     }
@@ -172,32 +178,56 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
   });
 };
 
-// Collect values from the current location.
-Drupal.behaviors.webform_prefill.readUrlVars = function(query, store) {
-  query = query || window.location.search.substr(1);
+/**
+ * Parse the hash from the hash string and clean them from the string.
+ *
+ * The hash string is first split into parts using a semi-colon";" as a
+ * separator. Each part that contains prefill variables (with the "p:"-prefix)
+ * is then removed.
+ *
+ * All prefill-values are stored into the session store.
+ */
+Drupal.behaviors.webform_prefill.readUrlVars = function(hash, store) {
+  hash = hash || window.location.hash.substr(1);
+  if (!hash) {
+    return '';
+  }
   store = store || prefillStore;
-  var vars = {}, key, value, p, hashes;
-  hashes = query.split('&');
-  for (var i = 0; i < hashes.length; i++) {
-    p = hashes[i].indexOf('=');
-    key = hashes[i].substring(0, p);
-    value = hashes[i].substring(p+1);
-    // Only act on p: prefixes.
-    if (key.substr(0, 2) == 'p:') {
-      key = key.substr(2);
-      // Prepare values to be set as list values.
-      if (!(key in vars)) {
-        vars[key] = [];
+  var vars = {}, key, value, p, parts, new_parts = [];
+  parts = hash.split(';');
+  // Iterate over all parts.
+  for (var j = 0; j < parts.length; j++) {
+    var part_has_prefill_vars = false;
+    var part = parts[j];
+    var hashes = part.split('&');
+    for (var i = 0; i < hashes.length; i++) {
+      p = hashes[i].indexOf('=');
+      key = hashes[i].substring(0, p);
+      value = hashes[i].substring(p+1);
+      // Only act on p: prefixes.
+      if (key.substr(0, 2) == 'p:') {
+        part_has_prefill_vars = true;
+        key = key.substr(2);
+        // Prepare values to be set as list values.
+        if (!(key in vars)) {
+          vars[key] = [];
+        }
+        vars[key].push(value);
+        // Set string values directly.
+        store.setItem('s:' + key, value);
       }
-      vars[key].push(value);
-      // Set string values directly.
-      store.setItem('s:' + key, value);
+    }
+    if (!part_has_prefill_vars) {
+      new_parts.push(part);
     }
   }
+
   // Finally set all list values.
   $.each(vars, function(key, value) {
     store.setItem('l:' + key, value);
   });
+
+  return new_parts.join(';');
 };
 
 }(jQuery));
