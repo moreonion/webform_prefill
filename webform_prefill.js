@@ -49,9 +49,10 @@ SessionStorage.prototype.getFirst = function(keys) {
 var prefillStore = new SessionStorage('webform_prefill')
 
 
-var FormValList = function($e) {
+var FormValList = function($e, name_attr) {
   this.$e = $e;
-  this.name = $e.attr('name');
+  this.name_attr = name_attr || 'name';
+  this.name = $e.attr(this.name_attr);
   this.cache_key = this.pfxMap(this.name);
 };
 
@@ -59,7 +60,7 @@ FormValList.prototype.getVal = function() {
   var $e = this.$e;
   var type = $e.attr('type');
   if (type == 'checkbox' || type == 'radio') {
-    $e = $e.closest('form').find('input:'+type+'[name="'+$e.attr('name')+'"]:checked');
+    $e = $e.closest('form').find('input:'+type+'['+this.name_attr+'="'+this.name+'"]:checked');
   }
   var val = $e.val() || [];
   return (val.constructor === Array) ? val : [val];
@@ -67,7 +68,7 @@ FormValList.prototype.getVal = function() {
 
 FormValList.prototype.getAllByName = function() {
   return this.$e.closest('form')
-    .find('[name="'+this.$e.attr('name')+'"]')
+    .find('['+this.name_attr+'="'+this.name+'"]')
     .filter('input:checkbox, input:radio, select[multiple]');
 };
 
@@ -75,9 +76,10 @@ FormValList.prototype.pfxMap = function(x) {
   return 'l:' + x;
 }
 
-var FormValSingle = function($e) {
+var FormValSingle = function($e, name_attr) {
   this.$e = $e;
-  this.name = $e.attr('name');
+  this.name_attr = name_attr || 'name';
+  this.name = $e.attr(this.name_attr);
   this.cache_key = this.pfxMap(this.name);
 };
 
@@ -87,7 +89,7 @@ FormValSingle.prototype.getVal = function() {
 
 FormValSingle.prototype.getAllByName = function() {
   return this.$e.closest('form')
-    .find('[name="'+this.$e.attr('name')+'"]')
+    .find('['+this.name_attr+'="'+this.name+'"]')
     .not('input:checkbox, input:radio, select[multiple]');
 };
 
@@ -97,12 +99,23 @@ FormValSingle.prototype.pfxMap = function(x) {
 
 Drupal.behaviors.webform_prefill = {};
 
-Drupal.behaviors.webform_prefill.elementFactory = function ($e) {
+Drupal.behaviors.webform_prefill.elementFactory = function ($e, name_attr) {
+  name_attr = name_attr || 'data-form-key';
   var type = $e.attr('type');
   if (type == 'checkbox' || type == 'radio' || $e.is('select[multiple]')) {
-    return new FormValList($e);
+    return new FormValList($e, name_attr);
   }
-  return new FormValSingle($e);
+  return new FormValSingle($e, name_attr);
+};
+
+Drupal.behaviors.webform_prefill.formKey = function($e) {
+  var name = $e.attr('name');
+  if ($e.attr('type') == 'checkbox') {
+    name = name.substr(0, name.length - (2 + $e.attr('value').length));
+  }
+  var first_b = name.lastIndexOf('[');
+  name = name.substr(first_b+1);
+  return name.substr(0, name.length-1);
 };
 
 Drupal.behaviors.webform_prefill._keys = function(name) {
@@ -131,6 +144,14 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
 
   var self = this;
   var $inputs = $('.webform-client-form', context).find('input, select, textarea');
+
+  $inputs.each(function() {
+    var $e = $(this);
+    var fk = self.formKey($e);
+    if (fk) {
+      $e.attr('data-form-key', fk);
+    }
+  });
 
   var done = {};
   $inputs.each(function() {

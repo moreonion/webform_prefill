@@ -18,12 +18,12 @@ Drupal = {behaviors: {}};
 <script>
 
 function getVal($e) {
-  var e = Drupal.behaviors.webform_prefill.elementFactory($e);
+  var e = Drupal.behaviors.webform_prefill.elementFactory($e, 'name');
   return e.getVal();
 }
 
 function setVal($e, val) {
-  var e = Drupal.behaviors.webform_prefill.elementFactory($e);
+  var e = Drupal.behaviors.webform_prefill.elementFactory($e, 'name');
   return e.getAllByName().val(val);
 }
 
@@ -99,6 +99,20 @@ QUnit.test( "setVal: input[type=text] vs. multi select", function( assert ) {
   setVal($t, 'test2');
   assert.deepEqual(getVal($s), ['test']);
   assert.deepEqual(getVal($t), 'test2');
+});
+
+QUnit.test( "formKey: input[type=text]", function( assert ) {
+  var $fixture = $('#qunit-fixture')
+  $fixture.append('<form><input type="text" name="submitted[otherparent][test]"></form>');
+  var $e = $fixture.find('input');
+  assert.equal(Drupal.behaviors.webform_prefill.formKey($e), 'test');
+});
+
+QUnit.test( "formKey: input[type=checkbox]", function( assert ) {
+  var $fixture = $('#qunit-fixture')
+  $fixture.append('<form><input type="checkbox" value="testval" name="submitted[otherparent][test][testval]"></form>');
+  var $e = $fixture.find('input');
+  assert.equal(Drupal.behaviors.webform_prefill.formKey($e), 'test');
 });
 
 </script>
