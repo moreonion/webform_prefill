@@ -27,6 +27,16 @@ function setVal($e, val) {
   return e.getAllByName().val(val);
 }
 
+var Store = function() {
+  this.data = {};
+};
+Store.prototype.setItem = function (key, value) {
+  this.data[key] = value;
+};
+Store.prototype.getItem = function (key) {
+  return this.data[key];
+};
+
 QUnit.test( "getVal: textfield", function( assert ) {
   var $fixture = $('#qunit-fixture')
   $fixture.append('<form><input type="text" name="test"></form>');
@@ -113,6 +123,14 @@ QUnit.test( "formKey: input[type=checkbox]", function( assert ) {
   $fixture.append('<form><input type="checkbox" value="testval" name="submitted[otherparent][test][testval]"></form>');
   var $e = $fixture.find('input');
   assert.equal(Drupal.behaviors.webform_prefill.formKey($e), 'test');
+});
+
+QUnit.test( "readUrlVars: /asdf?p:test=testval#p:other=haha", function ( assert ) {
+  var store = new Store();
+  Drupal.behaviors.webform_prefill.readUrlVars('/asdf?p:test=testval#p:other=haha', store);
+  assert.equal(store.getItem('s:test'), 'testval');
+  assert.deepEqual(store.getItem('l:test'), ['testval']);
+  assert.equal(store.getItem('s:other'), null);
 });
 
 </script>

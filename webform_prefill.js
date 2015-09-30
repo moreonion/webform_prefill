@@ -173,10 +173,12 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
 };
 
 // Collect values from the current location.
-Drupal.behaviors.webform_prefill.readUrlVars = function(href) {
+Drupal.behaviors.webform_prefill.readUrlVars = function(href, store) {
   href = href || window.location.href;
-  var vars = {}, key, value, p, hashes;
-  hashes = href.slice(href.indexOf('?') + 1).split('&');
+  store = store || prefillStore;
+  var vars = {}, key, value, p, hashes, q;
+  q = href.indexOf('?');
+  hashes = href.slice(q+1, href.indexOf('#', q)).split('&');
   for (var i = 0; i < hashes.length; i++) {
     p = hashes[i].indexOf('=');
     key = hashes[i].substring(0, p);
@@ -190,12 +192,12 @@ Drupal.behaviors.webform_prefill.readUrlVars = function(href) {
       }
       vars[key].push(value);
       // Set string values directly.
-      prefillStore.setItem('s:' + key, value);
+      store.setItem('s:' + key, value);
     }
   }
   // Finally set all list values.
   $.each(vars, function(key, value) {
-    prefillStore.setItem('l:' + key, value);
+    store.setItem('l:' + key, value);
   });
 };
 
