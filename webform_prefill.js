@@ -173,12 +173,11 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
 };
 
 // Collect values from the current location.
-Drupal.behaviors.webform_prefill.readUrlVars = function(href, store) {
-  href = href || window.location.href;
+Drupal.behaviors.webform_prefill.readUrlVars = function(query, store) {
+  query = query || window.location.search.substr(1);
   store = store || prefillStore;
-  var vars = {}, key, value, p, hashes, q;
-  q = href.indexOf('?');
-  hashes = href.slice(q+1, href.indexOf('#', q)).split('&');
+  var vars = {}, key, value, p, hashes;
+  hashes = query.split('&');
   for (var i = 0; i < hashes.length; i++) {
     p = hashes[i].indexOf('=');
     key = hashes[i].substring(0, p);
