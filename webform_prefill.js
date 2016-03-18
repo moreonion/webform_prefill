@@ -147,7 +147,16 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
   }
 
   var self = this;
-  var $inputs = $('.webform-client-form', context).find('input, select, textarea');
+  var $inputs = $('.webform-client-form', context).find('input, select, textarea').not(function(i, element) {
+    // Check nearest include and exclude-wrapper.
+    var $exclude = $(element).closest('.webform-prefill-exclude');
+    var $include = $(element).closest('.webform-prefill-include');
+    if ($exclude.length > 0) {
+      // Exclude unless there is an include-wrapper inside the exclude wrapper.
+      return $include.length <= 0 || $.contains($include.get(), $exclude.get());
+    }
+    return false;
+  });
 
   $inputs.each(function() {
     var $e = $(this);
