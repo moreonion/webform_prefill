@@ -110,6 +110,9 @@ Drupal.behaviors.webform_prefill.elementFactory = function ($e, name_attr) {
 
 Drupal.behaviors.webform_prefill.formKey = function($e) {
   var name = $e.attr('name');
+  if (!name) {
+    return;
+  }
   if ($e.attr('type') == 'checkbox') {
     name = name.slice(0, -(2 + $e.attr('value').length));
   }
