@@ -211,20 +211,21 @@ Drupal.behaviors.webform_prefill.readUrlVars = function(hash, store) {
   store = store || prefillStore;
   var vars = {}, key, value, p, parts, new_parts = [];
   parts = hash.split(';');
-  // Iterate over all parts.
   for (var j = 0; j < parts.length; j++) {
     var part_has_prefill_vars = false;
     var part = parts[j];
-    var hashes = part.split('&');
-    for (var i = 0; i < hashes.length; i++) {
-      p = hashes[i].indexOf('=');
-      key = hashes[i].substring(0, p);
-      value = hashes[i].substring(p+1);
-      // Only act on p: prefixes.
-      if (key.substr(0, 2) == 'p:') {
-        part_has_prefill_vars = true;
-        key = key.substr(2);
-        // Prepare values to be set as list values.
+    // Parts starting with p: are used for pre-filling.
+    if (part.substr(0, 2) == 'p:') {
+      var hashes = part.substr(2).split('&');
+      for (var i = 0; i < hashes.length; i++) {
+        p = hashes[i].indexOf('=');
+        key = hashes[i].substring(0, p);
+        // Backwards compatibility strip p: prefixes from keys.
+        if (key.substr(0, 2) == 'p:') {
+          key = key.substr(2);
+        }
+        value = hashes[i].substring(p+1);
+          // Prepare values to be set as list values.
         if (!(key in vars)) {
           vars[key] = [];
         }
@@ -233,7 +234,7 @@ Drupal.behaviors.webform_prefill.readUrlVars = function(hash, store) {
         store.setItem('s:' + key, value);
       }
     }
-    if (!part_has_prefill_vars) {
+    else {
       new_parts.push(part);
     }
   }
