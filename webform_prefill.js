@@ -151,6 +151,10 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
 
   var self = this;
   var $inputs = $('.webform-client-form', context).find('input, select, textarea').not(function(i, element) {
+    // Exclude file elements. We can't prefill those.
+    if ($(element).attr('type') == 'file') {
+      return true;
+    }
     // Check nearest include and exclude-wrapper.
     var $exclude = $(element).closest('.webform-prefill-exclude');
     var $include = $(element).closest('.webform-prefill-include');
