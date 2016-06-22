@@ -133,10 +133,18 @@ QUnit.test( "readUrlVars: p:test=testval&p:test=testval2;somethingelse", functio
   assert.deepEqual(store.getItem('l:test'), ['testval', 'testval2']);
 });
 
-QUnit.test( "readUrlVars: p:test (don't break if there is no value)", function ( assert ) {
+QUnit.test( "readUrlVars: p:test=testval&test=testval2;somethingelse", function ( assert ) {
+  var store = new Store();
+  var ret = Drupal.behaviors.webform_prefill.readUrlVars('p:test=testval&test=testval2;somethingelse', store);
+  assert.equal(ret, 'somethingelse');
+  assert.equal(store.getItem('s:test'), 'testval2');
+  assert.deepEqual(store.getItem('l:test'), ['testval', 'testval2']);
+});
+
+QUnit.test( "readUrlVars: p:test (All parts starting with 'p:' should be removed)", function ( assert ) {
   var store = new Store();
   var ret = Drupal.behaviors.webform_prefill.readUrlVars('p:test', store);
-  assert.equal(ret, 'p:test');
+  assert.equal(ret, '');
 });
 
 </script>
