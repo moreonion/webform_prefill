@@ -130,27 +130,9 @@ Drupal.behaviors.webform_prefill.keys = function(val) {
   return $.map(this._keys(val.name), val.pfxMap);
 };
 
-Drupal.behaviors.webform_prefill.attach = function(context, settings) {
-  if (!prefillStore.browserSupport()) { return; }
-
-  if (typeof this.settings === 'undefined') {
-    var hash = window.location.hash.substr(1);
-    if (hash) {
-      var new_hash = this.readUrlVars(hash);
-      if (new_hash != hash) {
-        window.location.hash = '#' + new_hash;
-      }
-    }
-    if ('webform_prefill' in Drupal.settings) {
-      this.settings = Drupal.settings.webform_prefill;
-    }
-    else {
-      this.settings = {map: {}};
-    }
-  }
-
+Drupal.behaviors.webform_prefill.attachToInputs = function($wrapper) {
   var self = this;
-  var $inputs = $('.webform-client-form', context).find('input, select, textarea').not(function(i, element) {
+  var $inputs = $wrapper.find('input, select, textarea').not(function(i, element) {
     // Exclude file elements. We can't prefill those.
     if ($(element).attr('type') == 'file') {
       return true;
@@ -165,7 +147,7 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
     return false;
   });
 
-  $inputs.each(function() {
+  $inputs.not('[data-form-key]').each(function() {
     var $e = $(this);
     var fk = self.formKey($e);
     if (fk) {
@@ -192,6 +174,28 @@ Drupal.behaviors.webform_prefill.attach = function(context, settings) {
     if (!e.name) { return; }
     prefillStore.setItem(e.cache_key, e.getVal());
   });
+};
+
+Drupal.behaviors.webform_prefill.attach = function(context, settings) {
+  if (!prefillStore.browserSupport()) { return; }
+
+  if (typeof this.settings === 'undefined') {
+    var hash = window.location.hash.substr(1);
+    if (hash) {
+      var new_hash = this.readUrlVars(hash);
+      if (new_hash != hash) {
+        window.location.hash = '#' + new_hash;
+      }
+    }
+    if ('webform_prefill' in Drupal.settings) {
+      this.settings = Drupal.settings.webform_prefill;
+    }
+    else {
+      this.settings = {map: {}};
+    }
+  }
+
+  this.attachToInputs($('.webform-client-form', context));
 };
 
 /**
