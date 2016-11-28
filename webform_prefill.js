@@ -46,7 +46,7 @@ SessionStorage.prototype.getFirst = function(keys) {
   return null;
 };
 
-var prefillStore = new SessionStorage('webform_prefill')
+var prefillStore = new SessionStorage('webform_prefill');
 
 
 var FormValList = function($e, name_attr) {
