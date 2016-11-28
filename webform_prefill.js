@@ -38,7 +38,7 @@ SessionStorage.prototype.getFirst = function(keys) {
   var value = null;
   for (var i=0; i<keys.length; i++) {
     var key = keys[i];
-    value = prefillStore.getItem(key);
+    value = this.getItem(key);
     if (value) {
       return value;
     }
