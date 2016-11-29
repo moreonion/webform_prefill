@@ -37,6 +37,32 @@ Store.prototype.getItem = function (key) {
   return this.data[key];
 };
 
+QUnit.test( "prefillStore.setItem", function( assert ) {
+  Drupal.behaviors.webform_prefill.prefillStore.setItem('foo', 'bar');
+  assert.equal(sessionStorage.getItem('webform_prefill:foo'), '"bar"');
+  sessionStorage.removeItem('webform_prefill:foo');
+});
+
+QUnit.test( "prefillStore.getItem", function( assert ) {
+  sessionStorage.setItem('webform_prefill:foo', '["bar", "baz"]');
+  var r = Drupal.behaviors.webform_prefill.prefillStore.getItem('foo');
+  assert.equal(r.length, 2);
+  assert.equal(r[1], 'baz');
+  sessionStorage.removeItem('webform_prefill:foo');
+});
+
+QUnit.test( "prefillStore.getFirst", function( assert ) {
+  var abc = ['"a"', '"b"', '"c"'];
+  for (var i = 0; i < 3; i++) {
+    sessionStorage.setItem('webform_prefill:' + i, abc[i]);
+  }
+  var r = Drupal.behaviors.webform_prefill.prefillStore.getFirst(['foo', 'bar', '1', '2']);
+  assert.equal(r, 'b');
+  for (var i = 0; i < 3; i++) {
+    sessionStorage.removeItem('webform_prefill:' + i);
+  }
+});
+
 QUnit.test( "getVal: textfield", function( assert ) {
   var $fixture = $('#qunit-fixture')
   $fixture.append('<form><input type="text" name="test"></form>');
