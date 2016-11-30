@@ -38,15 +38,13 @@ SessionStorage.prototype.getFirst = function(keys) {
   var value = null;
   for (var i=0; i<keys.length; i++) {
     var key = keys[i];
-    value = prefillStore.getItem(key);
+    value = this.getItem(key);
     if (value) {
       return value;
     }
   }
   return null;
 };
-
-var prefillStore = new SessionStorage('webform_prefill')
 
 
 var FormValList = function($e, name_attr) {
@@ -97,7 +95,9 @@ FormValSingle.prototype.pfxMap = function(x) {
   return 's:' + x;
 }
 
-Drupal.behaviors.webform_prefill = {};
+Drupal.behaviors.webform_prefill = {
+  prefillStore: new SessionStorage('webform_prefill')
+};
 
 Drupal.behaviors.webform_prefill.elementFactory = function ($e, name_attr) {
   name_attr = name_attr || 'data-form-key';
@@ -162,7 +162,7 @@ Drupal.behaviors.webform_prefill.attachToInputs = function($wrapper) {
       done[e.cache_key] = true;
 
       // Get value from all possible keys.
-      var value = prefillStore.getFirst(self.keys(e));
+      var value = self.prefillStore.getFirst(self.keys(e));
       if (value !== null) {
         e.getAllByName().val(value);
       }
@@ -172,12 +172,12 @@ Drupal.behaviors.webform_prefill.attachToInputs = function($wrapper) {
   $inputs.on('change', function() {
     var e = self.elementFactory($(this));
     if (!e.name) { return; }
-    prefillStore.setItem(e.cache_key, e.getVal());
+    self.prefillStore.setItem(e.cache_key, e.getVal());
   });
 };
 
 Drupal.behaviors.webform_prefill.attach = function(context, settings) {
-  if (!prefillStore.browserSupport()) { return; }
+  if (!this.prefillStore.browserSupport()) { return; }
 
   if (typeof this.settings === 'undefined') {
     var hash = window.location.hash.substr(1);
@@ -212,7 +212,7 @@ Drupal.behaviors.webform_prefill.readUrlVars = function(hash, store) {
   if (!hash) {
     return '';
   }
-  store = store || prefillStore;
+  store = store || this.prefillStore;
   var vars = {}, key, value, p, parts, new_parts = [];
   parts = hash.split(';');
   for (var j = 0; j < parts.length; j++) {
