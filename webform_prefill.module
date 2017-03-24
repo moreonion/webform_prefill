@@ -1,6 +1,46 @@
 <?php
 
 /**
+ * Implements hook_libraries_info().
+ */
+
+function webform_prefill_libraries_info() {
+  $libraries['jquery.formprefill'] = array(
+    'name' => 'jQuery form prefill',
+    'vendor url' => 'https://github.com/moreonion/jquery.formprefill',
+    'download url' => 'https://github.com/moreonion/jquery.formprefill',
+    'version arguments' => array(
+      'file' => 'jquery.formprefill.js',
+      'pattern' => '/Version (0.\d+.\d+)/',
+      'lines' => 5,
+    ),
+    'files' => array(
+      'js' => array('jquery.formprefill.js'),
+    ),
+  );
+
+  $libraries['es6-promise'] = array(
+    'name' => 'ES6-Promise',
+    'vendor url' => 'https://github.com/stefanpenner/es6-promise',
+    'download url' => 'https://github.com/stefanpenner/es6-promise',
+    'version arguments' => array(
+      'file' => 'jquery.formprefill.js',
+      'pattern' => '/Version (0.\d+.\d+)/',
+      'lines' => 5,
+    ),
+    'files' => array(
+      'js' => array(
+        'dist/es6-promise.auto.min.js' => array(
+          'preprocess' => FALSE,
+        ),
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  * Implements hook_form_webform_client_form_alter().
  *
@@ -13,5 +53,9 @@ function webform_prefill_form_webform_client_form_alter(&$form, &$form_state) {
     'last_name' => ['last_name', 'lastname', 'lname'],
     'email' => ['email', 'email_address'],
   ]);
+  $js['data']['webform_prefill']['cookieDomain'] = variable_get('webform_prefill_cookie_domain', '');
   $form['#attached']['js'][] = $js;
+
+  $form['#attached']['libraries_load'][] = array('es6-promise');
+  $form['#attached']['libraries_load'][] = array('jquery.formprefill');
 }
