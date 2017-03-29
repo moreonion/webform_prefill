@@ -3,7 +3,14 @@
 Drupal.behaviors.webform_prefill = {
   attach: function(context, settings) {
 
-    var settings = Drupal.settings.webform_prefill;
+    if (!$.isFunction($.fn.formPrefill))
+      return;
+
+    var settings = Drupal.settings.webform_prefill || {
+      map: {},
+      cookieDomain: ''
+    };
+
 
     $('form.webform-client-form:not([data-webform-prefill-processed])', context)
     .attr('data-webform-prefill-processed', 'true')
