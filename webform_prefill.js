@@ -12,8 +12,7 @@ Drupal.behaviors.webform_prefill = {
     };
 
 
-    $('form.webform-client-form:not([data-webform-prefill-processed])', context)
-    .attr('data-webform-prefill-processed', 'true')
+    $('form.webform-client-form', context)
     .formPrefill({
       prefix: 'webform_prefill',
       map: settings.map,
