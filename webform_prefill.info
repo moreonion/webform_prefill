@@ -1,8 +1,10 @@
 name = Webform prefill
 description = Pre-fill webforms based on previous webform submissions and URL-parameters.
 core = 7.x
+php = 5.4
 
 dependencies[] = jquery_update
+dependencies[] = variable
 dependencies[] = webform
 
 scripts[] = webform_prefill.js
