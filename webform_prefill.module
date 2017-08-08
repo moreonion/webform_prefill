@@ -10,8 +10,8 @@ function webform_prefill_libraries_info() {
     'vendor url' => 'https://github.com/moreonion/jquery.formprefill',
     'download url' => 'https://github.com/moreonion/jquery.formprefill',
     'version arguments' => array(
-      'file' => 'jquery.formprefill.js',
-      'pattern' => '/Version (0.\d+.\d+)/',
+      'file' => 'package.json',
+      'pattern' => '/"version":\s*"(\d+.\d+.\d+)"/',
       'lines' => 5,
     ),
     'files' => array(
@@ -24,8 +24,8 @@ function webform_prefill_libraries_info() {
     'vendor url' => 'https://github.com/stefanpenner/es6-promise',
     'download url' => 'https://github.com/stefanpenner/es6-promise',
     'version arguments' => array(
-      'file' => 'jquery.formprefill.js',
-      'pattern' => '/Version (0.\d+.\d+)/',
+      'file' => 'package.json',
+      'pattern' => '/"version":\s*"(\d+.\d+.\d+)"/',
       'lines' => 5,
     ),
     'files' => array(
