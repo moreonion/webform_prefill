@@ -17,6 +17,9 @@ function webform_prefill_libraries_info() {
     'files' => array(
       'js' => array('jquery.formprefill.js'),
     ),
+    'dependencies' => [
+      'es6-promise',
+    ],
   );
 
   $libraries['es6-promise'] = array(
@@ -52,6 +55,5 @@ function webform_prefill_form_webform_client_form_alter(&$form, &$form_state) {
   $js['data']['webform_prefill']['cookieDomain'] = variable_get_value('webform_prefill_cookie_domain');
   $form['#attached']['js'][] = $js;
 
-  $form['#attached']['libraries_load'][] = array('es6-promise');
-  $form['#attached']['libraries_load'][] = array('jquery.formprefill');
+  $form['#attached']['libraries_load'][] = ['jquery.formprefill'];
 }
