@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ *
+ * Install, update and uninstall functions for this module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function webform_prefill_requirements($phase) {
+  $r = [];
+
+  if ($phase == 'runtime') {
+    $key = 'webform_prefill_formprefill';
+    $r[$key]['title'] = 'jquery.formprefill';
+    $library = libraries_detect('jquery.formprefill');
+    if ($library['installed']) {
+      $r[$key]['value'] = $library['version'];
+      $r[$key]['severity'] = REQUIREMENT_OK;
+    }
+    else {
+      $r[$key]['error'] = $library['error'];
+      $r[$key]['description'] = $library['error message'];
+      $r[$key]['severity'] = REQUIREMENT_ERROR;
+    }
+  }
+
+  return $r;
+}
