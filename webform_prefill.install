@@ -28,3 +28,12 @@ function webform_prefill_requirements($phase) {
 
   return $r;
 }
+
+/**
+ * Set new variable to keep existing cookies.
+ */
+function webform_prefill_update_1() {
+  if (!empty(variable_get_value('webform_prefill_cookie_domain'))) {
+    variable_set_value('webform_prefill_storage', 'cookie');
+  }
+}
