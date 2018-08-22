@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Documentation of variables used by this module.
  */
 

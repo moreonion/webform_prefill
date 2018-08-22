@@ -1,16 +1,21 @@
+/**
+ * @file
+ * Initialize jquery.formPrefill.
+ */
+
 (function ($) {
 
 Drupal.behaviors.webform_prefill = {
-  attach: function(context, settings) {
+  attach: function (context, settings) {
 
-    if (!$.isFunction($.fn.formPrefill))
+    if (!$.isFunction($.fn.formPrefill)) {
       return;
+    }
 
     var settings = Drupal.settings.webform_prefill || {
       map: {},
       cookieDomain: ''
     };
-
 
     $('form.webform-client-form', context)
     .formPrefill({
