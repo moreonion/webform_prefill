@@ -55,9 +55,10 @@ function webform_prefill_libraries_info() {
 function webform_prefill_form_webform_client_form_alter(&$form, &$form_state) {
   $js['type'] = 'setting';
   $js['data']['webform_prefill']['map'] = variable_get_value('webform_prefill_map');
-  $js['data']['webform_prefill']['storage'] = variable_get_value('webform_prefill_storage');
   $js['data']['webform_prefill']['cookieDomain'] = variable_get_value('webform_prefill_cookie_domain');
   $js['data']['webform_prefill']['cookieMaxAge'] = variable_get_value('webform_prefill_cookie_max_age');
+  $storage = variable_get_value('webform_prefill_storage');
+  $js['data']['webform_prefill']['storage'] = is_array($storage) ? array_values($storage) : [$storage];
   $form['#attached']['js'][] = $js;
 
   $form['#attached']['libraries_load'][] = ['jquery.formprefill'];

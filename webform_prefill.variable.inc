@@ -12,9 +12,9 @@ function webform_prefill_variable_info($options) {
   $v['webform_prefill_storage'] = [
     'title' => t('Data storage', [], $options),
     'description' => t('Use this storage for storing the pre-fill data.', [], $options),
-    'type' => 'select',
-    'options' => ['sessionStorage', 'localStorage', 'cookie'],
-    'default' => 'sessionStorage',
+    'type' => 'options',
+    'options' => ['sessionStorage' => 'sessionStorage', 'localStorage' => 'localStorage', 'cookie' => 'cookie'],
+    'default' => ['sessionStorage' => 'sessionStorage'],
     'localize' => FALSE,
   ];
   $v['webform_prefill_cookie_domain'] = [

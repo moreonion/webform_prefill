@@ -14,7 +14,7 @@ Drupal.behaviors.webform_prefill = {
 
     var settings = Drupal.settings.webform_prefill || {
       map: {},
-      storage: 'sessionStorage',
+      storage: ['sessionStorage'],
       cookieDomain: ''
     };
 
@@ -26,9 +26,9 @@ Drupal.behaviors.webform_prefill = {
       include: '.webform-prefill-include',
       stringPrefix: 's',
       listPrefix: 'l',
-      useSessionStore: settings.storage === 'sessionStorage',
-      useLocalStore: settings.storage === 'localStorage',
-      useCookies: settings.storage === 'cookie',
+      useSessionStore: settings.storage.indexOf('sessionStorage') > -1,
+      useLocalStore: settings.storage.indexOf('localStorage') > -1,
+      useCookies: settings.storage.indexOf('cookie') > -1,
       cookieDomain: settings.cookieDomain,
       cookieMaxAge: settings.cookieMaxAge < 0 ? Infinity : settings.cookieMaxAge,
     });
