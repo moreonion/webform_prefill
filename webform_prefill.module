@@ -18,13 +18,9 @@ function webform_prefill_libraries_info() {
       'pattern' => '/"version":\s*"(\d+.\d+.\d+)"/',
       'lines' => 5,
     ],
-    'files' => [
-      'js' => ['jquery.formprefill.js'],
-    ],
-    'dependencies' => [
-      'es6-promise',
-    ],
   ];
+  $libraries['jquery.formprefill']['files']['js']['jquery.formprefill.js'] = [];
+  $libraries['jquery.formprefill']['dependencies'][] = 'es6-promise';
 
   $libraries['es6-promise'] = [
     'name' => 'ES6-Promise',
@@ -35,13 +31,9 @@ function webform_prefill_libraries_info() {
       'pattern' => '/"version":\s*"(\d+.\d+.\d+)"/',
       'lines' => 5,
     ],
-    'files' => [
-      'js' => [
-        'dist/es6-promise.auto.min.js' => [
-          'preprocess' => FALSE,
-        ],
-      ],
-    ],
+  ];
+  $libraries['es6-promise']['files']['js']['dist/es6-promise.auto.min.js'] = [
+    'preprocess' => FALSE,
   ];
 
   return $libraries;
