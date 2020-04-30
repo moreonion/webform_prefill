@@ -23,23 +23,6 @@ function webform_prefill_libraries_info() {
     'every_page' => TRUE,
     'group' => JS_LIBRARY,
   ];
-  $libraries['jquery.formprefill']['dependencies'][] = 'es6-promise';
-
-  $libraries['es6-promise'] = [
-    'name' => 'ES6-Promise',
-    'vendor url' => 'https://github.com/stefanpenner/es6-promise',
-    'download url' => 'https://github.com/stefanpenner/es6-promise',
-    'version arguments' => [
-      'file' => 'package.json',
-      'pattern' => '/"version":\s*"(\d+.\d+.\d+)"/',
-      'lines' => 5,
-    ],
-  ];
-  $libraries['es6-promise']['files']['js']['dist/es6-promise.auto.min.js'] = [
-    'every_page' => TRUE,
-    'group' => JS_LIBRARY,
-  ];
-
   return $libraries;
 }
 
