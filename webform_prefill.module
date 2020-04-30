@@ -9,40 +9,40 @@
  * Implements hook_libraries_info().
  */
 function webform_prefill_libraries_info() {
-  $libraries['jquery.formprefill'] = array(
+  $libraries['jquery.formprefill'] = [
     'name' => 'jQuery form prefill',
     'vendor url' => 'https://github.com/moreonion/jquery.formprefill',
     'download url' => 'https://github.com/moreonion/jquery.formprefill',
-    'version arguments' => array(
+    'version arguments' => [
       'file' => 'package.json',
       'pattern' => '/"version":\s*"(\d+.\d+.\d+)"/',
       'lines' => 5,
-    ),
-    'files' => array(
-      'js' => array('jquery.formprefill.js'),
-    ),
+    ],
+    'files' => [
+      'js' => ['jquery.formprefill.js'],
+    ],
     'dependencies' => [
       'es6-promise',
     ],
-  );
+  ];
 
-  $libraries['es6-promise'] = array(
+  $libraries['es6-promise'] = [
     'name' => 'ES6-Promise',
     'vendor url' => 'https://github.com/stefanpenner/es6-promise',
     'download url' => 'https://github.com/stefanpenner/es6-promise',
-    'version arguments' => array(
+    'version arguments' => [
       'file' => 'package.json',
       'pattern' => '/"version":\s*"(\d+.\d+.\d+)"/',
       'lines' => 5,
-    ),
-    'files' => array(
-      'js' => array(
-        'dist/es6-promise.auto.min.js' => array(
+    ],
+    'files' => [
+      'js' => [
+        'dist/es6-promise.auto.min.js' => [
           'preprocess' => FALSE,
-        ),
-      ),
-    ),
-  );
+        ],
+      ],
+    ],
+  ];
 
   return $libraries;
 }
