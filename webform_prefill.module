@@ -19,7 +19,7 @@ function webform_prefill_libraries_info() {
       'lines' => 5,
     ],
   ];
-  $libraries['jquery.formprefill']['files']['js']['jquery.formprefill.js'] = [
+  $libraries['jquery.formprefill']['files']['js']['jquery.formprefill.min.js'] = [
     'every_page' => TRUE,
     'group' => JS_LIBRARY,
   ];
