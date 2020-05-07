@@ -7,17 +7,9 @@
 
 Drupal.behaviors.webform_prefill = {
   attach: function (context, settings) {
+    var settings = settings.webform_prefill;
 
-    if (!$.isFunction($.fn.formPrefill)) {
-      return;
-    }
-
-    var settings = Drupal.settings.webform_prefill || {
-      map: {},
-      storage: ['sessionStorage'],
-      cookieDomain: ''
-    };
-
+    // This also triggers reading values from the URL even if there is no form.
     $('form.webform-client-form', context)
     .formPrefill({
       prefix: 'webform_prefill',

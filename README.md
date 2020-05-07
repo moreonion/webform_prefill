@@ -14,7 +14,6 @@ get the basic prefill functionality.
 
 ### Javascript libraries
 
-* [es6-promise](https://github.com/stefanpenner/es6-promise)
 * [jquery.formprefill](https://www.npmjs.com/package/jquery.formprefill)
 
 ### Drupal modules
@@ -55,3 +54,12 @@ part (`p:…`) using from the rest of the fragment using a semi-colon `;`. That
 means if you enter the website using `https://example.com?#anchor;p:name=Alice`
 the prefill value is removed from the URL after the JavaScript is done and you
 see the page as if you had entered `https://example.com?#anchor` instead.
+
+
+## Browser compatibility
+
+The JavaScript in this module is compatible with IE 11. However the required polyfills are not bundled. If you want to support these browsers you’ll neet to load an appropriate polyfill. For example you can use [polyfill.io](https://polyfill.io).
+
+(At least) the following features need polyfilling:
+
+- Promises

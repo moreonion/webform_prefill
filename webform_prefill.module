@@ -9,57 +9,37 @@
  * Implements hook_libraries_info().
  */
 function webform_prefill_libraries_info() {
-  $libraries['jquery.formprefill'] = array(
+  $libraries['jquery.formprefill'] = [
     'name' => 'jQuery form prefill',
     'vendor url' => 'https://github.com/moreonion/jquery.formprefill',
     'download url' => 'https://github.com/moreonion/jquery.formprefill',
-    'version arguments' => array(
+    'version arguments' => [
       'file' => 'package.json',
       'pattern' => '/"version":\s*"(\d+.\d+.\d+)"/',
       'lines' => 5,
-    ),
-    'files' => array(
-      'js' => array('jquery.formprefill.js'),
-    ),
-    'dependencies' => [
-      'es6-promise',
     ],
-  );
-
-  $libraries['es6-promise'] = array(
-    'name' => 'ES6-Promise',
-    'vendor url' => 'https://github.com/stefanpenner/es6-promise',
-    'download url' => 'https://github.com/stefanpenner/es6-promise',
-    'version arguments' => array(
-      'file' => 'package.json',
-      'pattern' => '/"version":\s*"(\d+.\d+.\d+)"/',
-      'lines' => 5,
-    ),
-    'files' => array(
-      'js' => array(
-        'dist/es6-promise.auto.min.js' => array(
-          'preprocess' => FALSE,
-        ),
-      ),
-    ),
-  );
-
+  ];
+  $libraries['jquery.formprefill']['files']['js']['jquery.formprefill.min.js'] = [
+    'every_page' => TRUE,
+    'group' => JS_LIBRARY,
+  ];
   return $libraries;
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() for webform_client_form().
+ * Implements hook_page_build().
  *
- * Add the prefill maping to the settings.
+ * We use hook_page_build() to load libraries as we only want them loaded for
+ * HTML pages (not AJAX calls, private files, …).
  */
-function webform_prefill_form_webform_client_form_alter(&$form, &$form_state) {
-  $js['type'] = 'setting';
-  $js['data']['webform_prefill']['map'] = variable_get_value('webform_prefill_map');
-  $js['data']['webform_prefill']['cookieDomain'] = variable_get_value('webform_prefill_cookie_domain');
-  $js['data']['webform_prefill']['cookieMaxAge'] = variable_get_value('webform_prefill_cookie_max_age');
+function webform_prefill_page_build(&$page) {
+  $settings['map'] = variable_get_value('webform_prefill_map');
+  $settings['cookieDomain'] = variable_get_value('webform_prefill_cookie_domain');
+  $settings['cookieMaxAge'] = variable_get_value('webform_prefill_cookie_max_age');
   $storage = variable_get_value('webform_prefill_storage');
-  $js['data']['webform_prefill']['storage'] = is_array($storage) ? array_values($storage) : [$storage];
-  $form['#attached']['js'][] = $js;
+  $settings['storage'] = is_array($storage) ? array_values($storage) : [$storage];
+  $settings['webform_prefill'] = $settings;
+  drupal_add_js($settings, ['type' => 'setting']);
 
-  $form['#attached']['libraries_load'][] = ['jquery.formprefill'];
+  libraries_load('jquery.formprefill');
 }
