@@ -43,3 +43,23 @@ function webform_prefill_page_build(&$page) {
 
   libraries_load('jquery.formprefill');
 }
+
+/**
+ * Implements hook_webform_component_render_alter().
+ */
+function webform_prefill_webform_component_render_alter(array &$element, array $component) {
+  if ($element['#type'] == 'select_or_other') {
+    $element['#process'][] = 'webform_prefill_element_process_select_or_other';
+  }
+}
+
+/**
+ * Element process callback for select_or_other elements.
+ */
+function webform_prefill_element_process_select_or_other(array $element, array &$form_state) {
+  $element['#attributes']['class'][] = $element['#multiple'] ? 'form-prefill-list' : 'form-prefill';
+  $element['select']['#attributes']['class'][] = 'webform-prefill-exclude';
+  $element['other']['#attributes']['class'][] = 'webform-prefill-exclude';
+  $element['#attributes']['data-form-prefill-keys'][] = end($element['#array_parents']);
+  return $element;
+}
